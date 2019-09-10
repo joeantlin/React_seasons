@@ -1,29 +1,40 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-// import SeasonDisplay from './SeasonDisplay';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = { lat: null, errorMessage: '' };
+    }
 
+    componentDidMount() {
         window.navigator.geolocation.getCurrentPosition(
-            position => {
-                this.setState({ lat: position.coords.latitude });
-            }, 
-            error => {
-                this.setState({ errorMessage: error.message });
-                console.log(error.message);
-            }
+            position => this.setState({ lat: position.coords.latitude }), 
+            error => this.setState({ errorMessage: error.message })
         );
+        console.log('My component was rendered to the screen');
+    }
+
+    componentDidUpdate() {
+        console.log('My component did update');
+    }
+
+    renderContent() {
+        if (this.state.errorMessage && !this.state.lat) {
+            return <p>Error: {this.state.errorMessage}</p>;
+        } 
+        if (!this.state.errorMessage && this.state.lat) {
+            return <SeasonDisplay lat={this.state.lat} />;
+        }
+        return <Spinner text="Please accept location request" />;
     }
 
     render() {
         return (
-            <div>
-                Latitude: {this.state.lat}
-                <br />
-                Error: {this.state.errorMessage}
+            <div className="wrapper">
+                {this.renderContent()}
             </div>
         );
     }
